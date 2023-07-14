@@ -22,7 +22,7 @@ To run *GetDocBM25stem*, open the terminal and run 'python GetDOCBM25stem.py' wi
 After running GetDocBM25.py, three files will be created. 3 pickled files; 1 that stores the documents' text in a list, 1 that stores the documents' docnos in a list, and 1 that stores the queries associated for that document in a list.
 To run monoBERT_ranking_results.py, use the following files in conjuction with the ExtractQueries program that creates a pickled file that stores the dictionary of queries and topic numbers.
 
-To run *BM25*, open the terminal and run 'python TESC.py' with the following operators and arguments:
+To run *BM25*, open the terminal and run 'python BM25.py' with the following operators and arguments:
 
 --index-path, 'Path to the directory location of your index'
 --queries-path, 'Path to the queries file'
