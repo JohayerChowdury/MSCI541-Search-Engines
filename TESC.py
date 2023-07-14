@@ -65,8 +65,6 @@ def print_statistics(measure, name):
     pickle.dump(measure, open(measure_file,'wb'))
 
 def statistics(qrel, results, file_author, max_results, mapping, doc_lengths):
-    # Author: Nimesh Ghelani based on code by Mark D. Smucker
-    # modified author's code for this homework assignment
 
     # query_ids are same as topic_numbers
     query_ids = sorted(qrel.get_query_ids())
