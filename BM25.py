@@ -1,5 +1,5 @@
 # Name: Johayer Rahman Chowdury
-# HW4, Due: Friday Nov 25, 2022
+# HW5, Due: Tuesday Dec 6, 2022
 # Program: BM25
 
 import sys
@@ -77,12 +77,6 @@ def main():
     except FileNotFoundError:
         msg = "File " + str(queries) + " does not exist. Please provide correct queries file."
         sys.exit(msg)
-    
-    invertedIndexPath = document_stored_directory / 'inverted_index.pkl'
-    startTimeUnpickleInvertedIndex = time.time()
-    invertedIndex = pickle.load(open(invertedIndexPath, 'rb'))
-    endTimeUnpickleInvertedIndex = time.time()
-    print("Inverted Index unpickling time taken: ", (endTimeUnpickleInvertedIndex - startTimeUnpickleInvertedIndex))
 
     lexiconPath = document_stored_directory / 'lexicon.pkl'
     startTimeUnpickleLexicon = time.time()
@@ -101,6 +95,12 @@ def main():
     mapping = pickle.load(open(mapping_path, 'rb'))
     endTimeUnpickleMapping = time.time()
     print("Mapping unpickling time taken: ", (endTimeUnpickleMapping - startTimeUnpickleMapping))
+    
+    invertedIndexPath = document_stored_directory / 'inverted_index.pkl'
+    startTimeUnpickleInvertedIndex = time.time()
+    invertedIndex = pickle.load(open(invertedIndexPath, 'rb'))
+    endTimeUnpickleInvertedIndex = time.time()
+    print("Inverted Index unpickling time taken: ", (endTimeUnpickleInvertedIndex - startTimeUnpickleInvertedIndex))
 
     startTimeAfterUnpickled = time.time()
 

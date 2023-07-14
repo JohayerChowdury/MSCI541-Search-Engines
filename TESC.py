@@ -14,8 +14,8 @@ from pathlib import Path
 import pickle
 import time
 
-hw4_7d_jchowdur_csv = Path('hw4-metrics-jchowdur.csv')
-hw4_7d_jchowdur_header = ['Run Name', 'Mean Average Precision', 'Mean P@10', 'Mean NDCG@10', 'Mean NDCG@1000', 'Mean TBG']
+hw5_5d_jchowdur_csv = Path('hw5-metrics-jchowdur.csv')
+hw5_5d_jchowdur_header = ['Run Name', 'Mean Average Precision', 'Mean P@10', 'Mean NDCG@10', 'Mean NDCG@100', 'Mean NDCG@1000', 'Mean TBG']
 
 # Global TBG Variables
 prob_click_on_rel_doc = 0.64
@@ -40,15 +40,16 @@ def write_to_csv(file_path, row, header):
             writer = csv.writer(f)
             writer.writerow(row)
         
-def print_mean_to_csv(file_author, ap, p_at_10, ndcg_at_10, ndcg_at_1000, tbg):
+def print_mean_to_csv(file_author, ap, p_at_10, ndcg_at_10, ndcg_at_100, ndcg_at_1000, tbg):
     mean_ap = calculate_mean(ap)
     mean_p_at_10 = calculate_mean(p_at_10)
     mean_ndcg_at_10 = calculate_mean(ndcg_at_10)
+    mean_ndcg_at_100 = calculate_mean(ndcg_at_100)
     mean_ndcg_at_1000 = calculate_mean(ndcg_at_1000)
     mean_tbg = calculate_mean(tbg)
 
-    row = [file_author,mean_ap, mean_p_at_10, mean_ndcg_at_10, mean_ndcg_at_1000, mean_tbg]
-    write_to_csv(hw4_7d_jchowdur_csv, row, hw4_7d_jchowdur_header)
+    row = [file_author,mean_ap, mean_p_at_10, mean_ndcg_at_10, mean_ndcg_at_100, mean_ndcg_at_1000, mean_tbg]
+    write_to_csv(hw5_5d_jchowdur_csv, row, hw5_5d_jchowdur_header)
 
 def calculate_idcg_at_k(num_qrel_relevant_docs, max_range_value):
     idcg = 0
@@ -59,14 +60,11 @@ def calculate_idcg_at_k(num_qrel_relevant_docs, max_range_value):
         idcg += dcg
     return idcg
 
-def print_statistics(measure, name, directory):
+def print_statistics(measure, name):
     measure_file = name + '.pkl'
-    measure_path = Path(directory / measure_file)
-    pickle.dump(measure, open(measure_path,'wb'))
+    pickle.dump(measure, open(measure_file,'wb'))
 
-def statistics(qrel, results, file_author, max_results, mapping, doc_lengths, document_stored_directory):
-    # Author: Nimesh Ghelani based on code by Mark D. Smucker
-    # modified author's code for this homework assignment
+def statistics(qrel, results, file_author, max_results, mapping, doc_lengths):
 
     # query_ids are same as topic_numbers
     query_ids = sorted(qrel.get_query_ids())
@@ -75,6 +73,7 @@ def statistics(qrel, results, file_author, max_results, mapping, doc_lengths, do
     ap = {}
     precision_at_rank_10 = {}
     ndcg_at_10 = {}
+    ndcg_at_100 = {}
     ndcg_at_1000 = {}
     tbg = {}
 
@@ -89,9 +88,12 @@ def statistics(qrel, results, file_author, max_results, mapping, doc_lengths, do
 
         ### NDCG variables ###
         idcg_at_10 = calculate_idcg_at_k(sum_relevance_judgement, 10)
+        idcg_at_100 = calculate_idcg_at_k(sum_relevance_judgement, 100)
         idcg_at_1000 = calculate_idcg_at_k(sum_relevance_judgement, 1000)
         dcg_at_10 = 0
+        dcg_at_100 = 0
         dcg_at_1000 = 0
+        
 
         ### Time biased gain variables ###
         tbg_num = 0
@@ -115,6 +117,8 @@ def statistics(qrel, results, file_author, max_results, mapping, doc_lengths, do
                 if index <= 1000:
                     dcg = relevance / math.log2(index+1)
                     dcg_at_1000 += dcg
+                    if index <= 100:
+                        dcg_at_100 += dcg
                     if index <= 10:
                         dcg_at_10 += dcg
                 
@@ -146,14 +150,16 @@ def statistics(qrel, results, file_author, max_results, mapping, doc_lengths, do
         tbg[query_id] = tbg_num
         ap[query_id] = (sum_numerator / sum_relevance_judgement)
         ndcg_at_10[query_id] = (dcg_at_10 / idcg_at_10)
+        ndcg_at_100[query_id] = (dcg_at_100 / idcg_at_100)
         ndcg_at_1000[query_id] = (dcg_at_1000 / idcg_at_1000)
 
-    print_statistics(ap, "AP", document_stored_directory)
-    print_statistics(precision_at_rank_10, "P@10", document_stored_directory)
-    print_statistics(ndcg_at_10, "ndcg_at_10", document_stored_directory)
-    print_statistics(ndcg_at_1000, "ndcg_at_1000", document_stored_directory)
-    print_statistics(tbg, "TBG", document_stored_directory)    
-    print_mean_to_csv(file_author, ap, precision_at_rank_10, ndcg_at_10, ndcg_at_1000, tbg)
+    print_statistics(ap, "AP")
+    print_statistics(precision_at_rank_10, "P@10")
+    print_statistics(ndcg_at_10, "ndcg_at_10")
+    print_statistics(ndcg_at_100, "ndcg_at_100")
+    print_statistics(ndcg_at_1000, "ndcg_at_1000")
+    print_statistics(tbg, "TBG")    
+    print_mean_to_csv(file_author, ap, precision_at_rank_10, ndcg_at_10, ndcg_at_100, ndcg_at_1000, tbg)
 
 def main():
     # Author: Nimesh Ghelani based on code by Mark D. Smucker
@@ -187,7 +193,7 @@ def main():
         # use helper function to calculate statistics using given qrels and results files
         startTimeTotal = time.time()
         print('Now calculating scores for ' + str(Path(cli.results)) + 'using qrels located in ' + str(Path(cli.qrel)) )
-        statistics(qrel, results, results_file_author, max_results, mapping, doc_lengths, document_stored_directory)
+        statistics(qrel, results, results_file_author, max_results, mapping, doc_lengths)
         endTimeTotal = time.time()
         print("Total time taken for " + str(Path(cli.results)) + " is: " +  (endTimeTotal-startTimeTotal))
 
@@ -195,9 +201,9 @@ def main():
     except:
         incorrect_format_list = []
         incorrect_format_list.append(results_file_author)
-        for i in range(5):
+        for i in range(len(hw5_5d_jchowdur_header) - 1):
             incorrect_format_list.append('Bad Format')
-        write_to_csv(hw4_7d_jchowdur_csv, incorrect_format_list, hw4_7d_jchowdur_header)
+        write_to_csv(hw5_5d_jchowdur_csv, incorrect_format_list, hw5_5d_jchowdur_header)
 
 if __name__ == "__main__":
     main()
