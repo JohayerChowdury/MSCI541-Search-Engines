@@ -1,0 +1,4 @@
+﻿Run Name,Mean Average Precision,Mean P@10,Mean NDCG@10,Mean NDCG@1000,Mean TBG
+hw4-bm25-baseline-jchowdur,0.202,0.242,0.322,0.418,1.849
+hw4-bm25-stem-jchowdur,0.248,0.284,0.374,0.485,2.149
+p-value,0.002150447,0.052628806,0.036569108,0.001106825,0.00055153
